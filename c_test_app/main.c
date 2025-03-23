@@ -46,8 +46,15 @@ int main() {
 
     VisageCanvas_setColor(canvas, VisageColor_fromARGB(0xff000066));
     VisageCanvas_fill(canvas, 0, 0, 800, 600);
+
+    float window_width = 800.0;
+    float window_height = 600.0;
+    float circle_radius = window_height * 0.1;
+    float x = window_width * 0.5 - circle_radius;
+    float y = window_height * 0.5 - circle_radius;
+
     VisageCanvas_setColor(canvas, VisageColor_fromARGB(0xff00ffff));
-    VisageCanvas_circle(canvas, 300.0, 200.0, 100.0);
+    VisageCanvas_circle(canvas, x, y, 2.0 * circle_radius);
 
     VisageCanvas_submit(canvas, 0);
 

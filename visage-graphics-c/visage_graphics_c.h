@@ -82,6 +82,9 @@ void VisageCanvas_destroy(VisageCanvas* canvas);
 
 void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int width, int height);
 
+void VisageCanvas_setDimensions(VisageCanvas* canvas, int width, int height);
+void VisageCanvas_setDpiScale(VisageCanvas* canvas, float scale);
+void VisageCanvas_clearDrawnShapes(VisageCanvas* canvas);
 void VisageCanvas_submit(VisageCanvas* canvas, int submit_pass);
 
 void VisageCanvas_setColor(VisageCanvas* canvas, VisageColor color);

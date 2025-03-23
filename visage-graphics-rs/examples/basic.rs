@@ -41,19 +41,20 @@ impl ApplicationHandler for App {
                 )
                 .unwrap();
 
+            let window_size = window.inner_size();
+            let dpi_scale = window.scale_factor() as f32;
+
             let raw_display = window.display_handle().unwrap();
             let raw_window = window.window_handle().unwrap();
 
             let canvas = unsafe {
                 let raw_display_ptr: *mut c_void = match raw_display.as_raw() {
                     RawDisplayHandle::Xlib(handle) => handle.display.unwrap().as_ptr(),
-                    RawDisplayHandle::Xcb(handle) => todo!(),
                     _ => todo!(),
                 };
 
                 let raw_window_ptr: *mut c_void = match raw_window.as_raw() {
                     RawWindowHandle::Xlib(handle) => handle.window as *mut c_void,
-                    RawWindowHandle::Xcb(handle) => todo!(),
                     _ => todo!(),
                 };
 
@@ -68,20 +69,14 @@ impl ApplicationHandler for App {
 
                 let canvas = visage_graphics_sys::VisageCanvas_new();
 
-                visage_graphics_sys::VisageCanvas_pairToWindow(canvas, raw_window_ptr, 800, 600);
-
-                visage_graphics_sys::VisageCanvas_setColor(
+                visage_graphics_sys::VisageCanvas_pairToWindow(
                     canvas,
-                    visage_graphics_sys::VisageColor_fromARGB(0xff000066),
+                    raw_window_ptr,
+                    window_size.width as i32,
+                    window_size.height as i32,
                 );
-                visage_graphics_sys::VisageCanvas_fill(canvas, 0.0, 0.0, 800.0, 600.0);
-                visage_graphics_sys::VisageCanvas_setColor(
-                    canvas,
-                    visage_graphics_sys::VisageColor_fromARGB(0xff00ffff),
-                );
-                visage_graphics_sys::VisageCanvas_circle(canvas, 300.0, 200.0, 100.0);
 
-                visage_graphics_sys::VisageCanvas_submit(canvas, 0);
+                visage_graphics_sys::VisageCanvas_setDpiScale(canvas, dpi_scale);
 
                 canvas
             };
@@ -99,19 +94,74 @@ impl ApplicationHandler for App {
             }
             WindowEvent::RedrawRequested => {
                 if let Some(state) = &self.state {
-                    // Notify that you're about to draw.
-                    state.window.pre_present_notify();
+                    let window_size = state.window.inner_size();
+                    let window_width = window_size.width as f32;
+                    let window_height = window_size.height as f32;
 
                     unsafe {
-                        //visage_graphics_sys::VisageCanvas_setColor(state.canvas, visage_graphics_sys::VisageColor_fromARGB(0xff000066));
-                        //visage_graphics_sys::VisageCanvas_fill(state.canvas, 0.0, 0.0, 800.0, 600.0);
-                        //visage_graphics_sys::VisageCanvas_setColor(state.canvas, visage_graphics_sys::VisageColor_fromARGB(0xff000066));
-                        //visage_graphics_sys::VisageCanvas_circle(state.canvas, 400.0, 600.0, 100.0);
+                        visage_graphics_sys::VisageCanvas_clearDrawnShapes(state.canvas);
+
+                        visage_graphics_sys::VisageCanvas_setColor(
+                            state.canvas,
+                            visage_graphics_sys::VisageColor_fromARGB(0xff000066),
+                        );
+                        visage_graphics_sys::VisageCanvas_fill(
+                            state.canvas,
+                            0.0,
+                            0.0,
+                            window_width,
+                            window_height,
+                        );
+
+                        let circle_radius = window_height * 0.1;
+                        let x = window_width * 0.5 - circle_radius;
+                        let y = window_height * 0.5 - circle_radius;
+                        visage_graphics_sys::VisageCanvas_setColor(
+                            state.canvas,
+                            visage_graphics_sys::VisageColor_fromARGB(0xff00ffff),
+                        );
+                        visage_graphics_sys::VisageCanvas_circle(
+                            state.canvas,
+                            x,
+                            y,
+                            2.0 * circle_radius,
+                        );
+
+                        // Notify that you're about to draw.
+                        state.window.pre_present_notify();
 
                         visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
                     }
 
                     // For contiguous redraw loop you can request a redraw from here.
+                    //state.window.request_redraw();
+                }
+            }
+            WindowEvent::Resized(new_physical_size) => {
+                if let Some(state) = &self.state {
+                    unsafe {
+                        visage_graphics_sys::VisageCanvas_setDimensions(
+                            state.canvas,
+                            new_physical_size.width as i32,
+                            new_physical_size.height as i32,
+                        );
+                    }
+
+                    state.window.request_redraw();
+                }
+            }
+            WindowEvent::ScaleFactorChanged {
+                scale_factor,
+                inner_size_writer: _,
+            } => {
+                if let Some(state) = &self.state {
+                    unsafe {
+                        visage_graphics_sys::VisageCanvas_setDpiScale(
+                            state.canvas,
+                            scale_factor as f32,
+                        );
+                    }
+
                     state.window.request_redraw();
                 }
             }

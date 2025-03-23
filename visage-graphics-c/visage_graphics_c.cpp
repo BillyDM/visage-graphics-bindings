@@ -77,7 +77,15 @@ extern "C"
     void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int width, int height) {
         reinterpret_cast<visage::Canvas*>(canvas)->pairToWindow(window_handle, width, height);
     }
-
+    void VisageCanvas_setDimensions(VisageCanvas* canvas, int width, int height) {
+        reinterpret_cast<visage::Canvas*>(canvas)->setDimensions(width, height);
+    }
+    void VisageCanvas_setDpiScale(VisageCanvas* canvas, float scale) {
+        reinterpret_cast<visage::Canvas*>(canvas)->setDpiScale(scale);
+    }
+    void VisageCanvas_clearDrawnShapes(VisageCanvas* canvas) {
+        reinterpret_cast<visage::Canvas*>(canvas)->clearDrawnShapes();
+    }
     void VisageCanvas_submit(VisageCanvas* canvas, int submit_pass) {
         reinterpret_cast<visage::Canvas*>(canvas)->submit(submit_pass);
     }

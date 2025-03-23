@@ -1,0 +1,10 @@
+[package]
+name = "visage-graphics-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+visage-graphics-sys = { path = "visage-graphics-sys" }
+
+[dev-dependencies]
+winit = { version = "0.30.9", default-features = false, features = ["x11", "rwh_06"] }

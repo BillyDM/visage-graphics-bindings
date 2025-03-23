@@ -47,7 +47,7 @@ int main() {
     VisageCanvas_setColor(canvas, VisageColor_fromARGB(0xff000066));
     VisageCanvas_fill(canvas, 0, 0, 800, 600);
     VisageCanvas_setColor(canvas, VisageColor_fromARGB(0xff00ffff));
-    VisageCanvas_circle(canvas, 400.0, 600.0, 100.0);
+    VisageCanvas_circle(canvas, 300.0, 200.0, 100.0);
 
     VisageCanvas_submit(canvas, 0);
 

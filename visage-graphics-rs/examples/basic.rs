@@ -5,7 +5,9 @@ use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
 use winit::event::WindowEvent;
 use winit::event_loop::{ActiveEventLoop, EventLoop};
-use winit::raw_window_handle::{HasDisplayHandle, HasWindowHandle, RawDisplayHandle, RawWindowHandle};
+use winit::raw_window_handle::{
+    HasDisplayHandle, HasWindowHandle, RawDisplayHandle, RawWindowHandle,
+};
 use winit::window::{Window, WindowAttributes, WindowId};
 
 use visage_graphics_rs::visage_graphics_sys;
@@ -13,7 +15,6 @@ use visage_graphics_rs::visage_graphics_sys;
 #[derive(Default)]
 struct App {
     state: Option<WindowState>,
-
 }
 
 struct WindowState {
@@ -39,7 +40,7 @@ impl ApplicationHandler for App {
                     WindowAttributes::default().with_inner_size(LogicalSize::new(800, 600)),
                 )
                 .unwrap();
-            
+
             let raw_display = window.display_handle().unwrap();
             let raw_window = window.window_handle().unwrap();
 
@@ -53,10 +54,13 @@ impl ApplicationHandler for App {
                 let raw_window_ptr: *mut c_void = match raw_window.as_raw() {
                     RawWindowHandle::Xlib(handle) => handle.window as *mut c_void,
                     RawWindowHandle::Xcb(handle) => todo!(),
-                    _ => todo!()
+                    _ => todo!(),
                 };
 
-                visage_graphics_sys::VisageRenderer_checkInitialization(raw_window_ptr, raw_display_ptr);
+                visage_graphics_sys::VisageRenderer_checkInitialization(
+                    raw_window_ptr,
+                    raw_display_ptr,
+                );
 
                 dbg!(visage_graphics_sys::VisageRenderer_initialized());
                 dbg!(visage_graphics_sys::VisageRenderer_supported());
@@ -66,9 +70,15 @@ impl ApplicationHandler for App {
 
                 visage_graphics_sys::VisageCanvas_pairToWindow(canvas, raw_window_ptr, 800, 600);
 
-                visage_graphics_sys::VisageCanvas_setColor(canvas, visage_graphics_sys::VisageColor_fromARGB(0xff000066));
+                visage_graphics_sys::VisageCanvas_setColor(
+                    canvas,
+                    visage_graphics_sys::VisageColor_fromARGB(0xff000066),
+                );
                 visage_graphics_sys::VisageCanvas_fill(canvas, 0.0, 0.0, 800.0, 600.0);
-                visage_graphics_sys::VisageCanvas_setColor(canvas, visage_graphics_sys::VisageColor_fromARGB(0xff00ffff));
+                visage_graphics_sys::VisageCanvas_setColor(
+                    canvas,
+                    visage_graphics_sys::VisageColor_fromARGB(0xff00ffff),
+                );
                 visage_graphics_sys::VisageCanvas_circle(canvas, 300.0, 200.0, 100.0);
 
                 visage_graphics_sys::VisageCanvas_submit(canvas, 0);
@@ -97,7 +107,7 @@ impl ApplicationHandler for App {
                         //visage_graphics_sys::VisageCanvas_fill(state.canvas, 0.0, 0.0, 800.0, 600.0);
                         //visage_graphics_sys::VisageCanvas_setColor(state.canvas, visage_graphics_sys::VisageColor_fromARGB(0xff000066));
                         //visage_graphics_sys::VisageCanvas_circle(state.canvas, 400.0, 600.0, 100.0);
-    
+
                         visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
                     }
 

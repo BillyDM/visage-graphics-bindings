@@ -6,6 +6,11 @@ fn main() {
     let mut config = cmake::Config::new("../../visage-graphics-c");
     config.define("BUILD_SHARED_LIBS", "OFF");
 
+    // Disable building the static library with the Debug profile.
+    if config.get_profile() == "Debug" {
+        config.profile("RelWithDebInfo");
+    };
+
     // Link C++ standard library & platform-specific libraries.
     #[cfg(target_os = "linux")]
     {
@@ -28,7 +33,7 @@ fn main() {
 
     // Link compiled freetype library.
     println!("cargo:rustc-link-search=native={}", dst.clone().join("_deps/freetype-build").display());
-    println!("cargo:rustc-link-lib=static=freetyped");
+    println!("cargo:rustc-link-lib=static=freetype");
 
     // Link compiled nanosvg library.
     println!("cargo:rustc-link-search=native={}", dst.clone().join("_deps/visage-build/visage_graphics/third_party/nanosvg").display());

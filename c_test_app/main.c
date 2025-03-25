@@ -7,9 +7,9 @@
 int main() {
     printf("Hello, world!\n");
 
-    Display* main_display = XOpenDisplay(nullptr);
+    Display* main_display = XOpenDisplay(NULL);
 
-    if (main_display == nullptr) {
+    if (main_display == NULL) {
         printf("Failed to open display\n");
         return 1;
     }

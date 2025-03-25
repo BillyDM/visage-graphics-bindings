@@ -7,7 +7,6 @@ extern "C" {
 #else
 #include <stdbool.h>
 #include <stdint.h>
-#define nullptr NULL
 #endif
 
 #define VISAGE_MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -95,6 +94,44 @@ static inline VisageColor VisageColor_interpolate(const VisageColor* a, const Vi
     return result;
 }
 
+// -- Gradient -------------------------------------------------------------------------------------
+
+struct VisageGradient_t;
+typedef struct VisageGradient_t VisageGradient;
+
+VisageGradient* VisageGradient_new();
+VisageGradient* VisageGradient_clone(const VisageGradient* gradient);
+VisageGradient* VisageGradient_fromSampleFunction(int32_t resolution, void (*sample_function)(float, VisageColor*));
+void VisageGradient_delete(VisageGradient* gradient);
+
+int32_t VisageGradient_getResolution(const VisageGradient* gradient);
+void VisageGradient_setResolution(VisageGradient* gradient, int32_t resolution);
+void VisageGradient_getColor(const VisageGradient* gradient, int32_t index, VisageColor* returnValue);
+void VisageGradient_setColor(VisageGradient* gradient, int32_t index, VisageColor color);
+void VisageGradient_interpolateWith(VisageGradient* gradient, const VisageGradient* other, float t);
+void VisageGradient_sample(const VisageGradient* gradient, float t, VisageColor* returnValue);
+void VisageGradient_multiplyAlpha(VisageGradient* gradient, float mult);
+int32_t VisageGradient_compare(const VisageGradient* a, const VisageGradient* b);
+
+// -- Brush ----------------------------------------------------------------------------------------
+
+struct VisageBrush_t;
+typedef struct VisageBrush_t VisageBrush;
+
+VisageBrush* VisageBrush_new();
+VisageBrush* VisageBrush_clone(const VisageBrush* brush);
+void VisageBrush_delete(VisageBrush* brush);
+
+void VisageBrush_solid(VisageBrush* brush, const VisageColor* color);
+void VisageBrush_horizontal(VisageBrush* brush, const VisageGradient* gradient);
+void VisageBrush_horizontalFromTwo(VisageBrush* brush, VisageColor left, VisageColor right);
+void VisageBrush_vertical(VisageBrush* brush, const VisageGradient* gradient);
+void VisageBrush_verticalFromTwo(VisageBrush* brush, VisageColor top, VisageColor bottom);
+void VisageBrush_linear(VisageBrush* brush, const VisageGradient* gradient, float from_x, float from_y, float to_x, float to_y);
+void VisageBrush_linearFromTwo(VisageBrush* brush, VisageColor from_color, VisageColor to_color, float from_x, float from_y, float to_x, float to_y);
+void VisageBrush_interpolateWith(VisageBrush* brush, const VisageBrush* other, float t);
+void VisageBrush_multiplyAlpha(VisageBrush* brush, float t);
+
 // -- Canvas ---------------------------------------------------------------------------------------
 
 struct VisageCanvas_t;
@@ -104,16 +141,26 @@ VisageCanvas* VisageCanvas_new();
 void VisageCanvas_destroy(VisageCanvas* canvas);
 
 void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int32_t width, int32_t height);
-
 void VisageCanvas_setDimensions(VisageCanvas* canvas, int32_t width, int32_t height);
 void VisageCanvas_setDpiScale(VisageCanvas* canvas, float scale);
+void VisageCanvas_setNativePixelScale(VisageCanvas* canvas);
+void VisageCanvas_setLogicalPixelScal(VisageCanvas* canvas);
 void VisageCanvas_clearDrawnShapes(VisageCanvas* canvas);
 void VisageCanvas_submit(VisageCanvas* canvas, int32_t submit_pass);
+void VisageCanvas_updateTime(VisageCanvas* canvas, double time);
+void VisageCanvas_setWindowless(VisageCanvas* canvas, int32_t width, int32_t height);
+void VisageCanvas_removeFromWindow(VisageCanvas* canvas);
+void VisageCanvas_requestScreenshot(VisageCanvas* canvas);
+
+float VisageCanvas_dpiScale(VisageCanvas* canvas);
+double VisageCanvas_time(VisageCanvas* canvas);
+double VisageCanvas_deltaTime(VisageCanvas* canvas);
+int32_t VisageCanvas_frameCount(VisageCanvas* canvas);
 
 void VisageCanvas_setColor(VisageCanvas* canvas, VisageColor color);
+void VisageCanvas_setBrush(VisageCanvas* canvas, const VisageBrush* brush);
 void VisageCanvas_fill(VisageCanvas* canvas, float x, float y, float width, float height);
 void VisageCanvas_circle(VisageCanvas* canvas, float x, float y, float width);
-
 
 #ifdef __cplusplus
 }

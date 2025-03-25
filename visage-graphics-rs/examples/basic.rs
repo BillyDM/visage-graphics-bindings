@@ -93,77 +93,83 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             WindowEvent::RedrawRequested => {
-                if let Some(state) = &self.state {
-                    let window_size = state.window.inner_size();
-                    let window_width = window_size.width as f32;
-                    let window_height = window_size.height as f32;
+                let Some(state) = &self.state else {
+                    return;
+                };
 
-                    unsafe {
-                        visage_graphics_sys::VisageCanvas_clearDrawnShapes(state.canvas);
+                let window_size = state.window.inner_size();
+                let window_width = window_size.width as f32;
+                let window_height = window_size.height as f32;
 
-                        visage_graphics_sys::VisageCanvas_setColor(
-                            state.canvas,
-                            visage_graphics_sys::VisageColor_fromARGB(0xff000066),
-                        );
-                        visage_graphics_sys::VisageCanvas_fill(
-                            state.canvas,
-                            0.0,
-                            0.0,
-                            window_width,
-                            window_height,
-                        );
+                unsafe {
+                    visage_graphics_sys::VisageCanvas_clearDrawnShapes(state.canvas);
 
-                        let circle_radius = window_height * 0.1;
-                        let x = window_width * 0.5 - circle_radius;
-                        let y = window_height * 0.5 - circle_radius;
-                        visage_graphics_sys::VisageCanvas_setColor(
-                            state.canvas,
-                            visage_graphics_sys::VisageColor_fromARGB(0xff00ffff),
-                        );
-                        visage_graphics_sys::VisageCanvas_circle(
-                            state.canvas,
-                            x,
-                            y,
-                            2.0 * circle_radius,
-                        );
+                    visage_graphics_sys::VisageCanvas_setColor(
+                        state.canvas,
+                        visage_graphics_sys::VisageColor_fromARGB(0xff000066),
+                    );
+                    visage_graphics_sys::VisageCanvas_fill(
+                        state.canvas,
+                        0.0,
+                        0.0,
+                        window_width,
+                        window_height,
+                    );
 
-                        // Notify that you're about to draw.
-                        state.window.pre_present_notify();
+                    let circle_radius = window_height * 0.1;
+                    let x = window_width * 0.5 - circle_radius;
+                    let y = window_height * 0.5 - circle_radius;
+                    visage_graphics_sys::VisageCanvas_setColor(
+                        state.canvas,
+                        visage_graphics_sys::VisageColor_fromARGB(0xff00ffff),
+                    );
+                    visage_graphics_sys::VisageCanvas_circle(
+                        state.canvas,
+                        x,
+                        y,
+                        2.0 * circle_radius,
+                    );
 
-                        visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
-                    }
+                    // Notify that you're about to draw.
+                    state.window.pre_present_notify();
 
-                    // For contiguous redraw loop you can request a redraw from here.
-                    //state.window.request_redraw();
+                    visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
                 }
+
+                // For contiguous redraw loop you can request a redraw from here.
+                //state.window.request_redraw();
             }
             WindowEvent::Resized(new_physical_size) => {
-                if let Some(state) = &self.state {
-                    unsafe {
-                        visage_graphics_sys::VisageCanvas_setDimensions(
-                            state.canvas,
-                            new_physical_size.width as i32,
-                            new_physical_size.height as i32,
-                        );
-                    }
+                let Some(state) = &self.state else {
+                    return;
+                };
 
-                    state.window.request_redraw();
+                unsafe {
+                    visage_graphics_sys::VisageCanvas_setDimensions(
+                        state.canvas,
+                        new_physical_size.width as i32,
+                        new_physical_size.height as i32,
+                    );
                 }
+
+                state.window.request_redraw();
             }
             WindowEvent::ScaleFactorChanged {
                 scale_factor,
                 inner_size_writer: _,
             } => {
-                if let Some(state) = &self.state {
-                    unsafe {
-                        visage_graphics_sys::VisageCanvas_setDpiScale(
-                            state.canvas,
-                            scale_factor as f32,
-                        );
-                    }
+                let Some(state) = &self.state else {
+                    return;
+                };
 
-                    state.window.request_redraw();
+                unsafe {
+                    visage_graphics_sys::VisageCanvas_setDpiScale(
+                        state.canvas,
+                        scale_factor as f32,
+                    );
                 }
+
+                state.window.request_redraw();
             }
             _ => (),
         }

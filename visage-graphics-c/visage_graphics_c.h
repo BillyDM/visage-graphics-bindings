@@ -2,6 +2,7 @@
 #define VISAGE_C_WRAPPER_H
 
 #ifdef __cplusplus
+#include <cstdint>
 extern "C" {
 #else
 #include <stdbool.h>
@@ -37,14 +38,36 @@ typedef struct VisageColor {
     float hdr;
 } VisageColor;
 
-VisageColor VisageColor_fromAHSV(float alpha, float hue, float saturation, float value);
-VisageColor VisageColor_fromABGR(unsigned int abgr);
-VisageColor VisageColor_fromARGB(unsigned int argb);
-VisageColor VisageColor_fromHexString(const char* str);
-unsigned int VisageColor_toABGR(const VisageColor* color);
-unsigned int VisageColor_toARGB(const VisageColor* color);
-unsigned int VisageColor_toRGB(const VisageColor* color);
-inline int VisageColor_compare(const VisageColor* a, const VisageColor* b) {
+void VisageColor_fromAHSV_inner(float alpha, float hue, float saturation, float value, VisageColor* returnValue);
+void VisageColor_fromABGR_inner(uint32_t abgr, VisageColor* returnValue);
+void VisageColor_fromARGB_inner(uint32_t argb, VisageColor* returnValue);
+void VisageColor_fromHexString_inner(const char* str, VisageColor* returnValue);
+
+static inline VisageColor VisageColor_fromAHSV(float alpha, float hue, float saturation, float value) {
+    VisageColor color;
+    VisageColor_fromAHSV_inner(alpha, hue, saturation, value, &color);
+    return color;
+}
+static inline VisageColor VisageColor_fromABGR(uint32_t abgr) {
+  VisageColor color;
+  VisageColor_fromABGR_inner(abgr, &color);
+  return color;
+}
+static inline VisageColor VisageColor_fromARGB(uint32_t argb) {
+  VisageColor color;
+  VisageColor_fromARGB_inner(argb, &color);
+  return color;
+}
+static inline VisageColor VisageColor_fromHexString(const char* str) {
+  VisageColor color;
+  VisageColor_fromHexString_inner(str, &color);
+  return color;
+}
+
+uint32_t VisageColor_toABGR(const VisageColor* color);
+uint32_t VisageColor_toARGB(const VisageColor* color);
+uint32_t VisageColor_toRGB(const VisageColor* color);
+static inline int VisageColor_compare(const VisageColor* a, const VisageColor* b) {
     for (int i = 0; i < VisageNumColorChannels; ++i) {
         if (a->values[i] < b->values[i])
           return -1;
@@ -57,13 +80,13 @@ inline int VisageColor_compare(const VisageColor* a, const VisageColor* b) {
         return 1;
       return 0;
 }
-inline float VisageColor_value(const VisageColor* color) {
+static inline float VisageColor_value(const VisageColor* color) {
     float max_bg = VISAGE_MAX(color->values[VisageColorChannelBlue], color->values[VisageColorChannelGreen]);
     return VISAGE_MAX(max_bg, color->values[VisageColorChannelRed]);
 }
 float VisageColor_saturation(const VisageColor* color);
 float VisageColor_hue(const VisageColor* color);
-inline VisageColor VisageColor_interpolate(const VisageColor* a, const VisageColor* b, float t) {
+static inline VisageColor VisageColor_interpolate(const VisageColor* a, const VisageColor* b, float t) {
     VisageColor result;
     for (int i = 0; i < VisageNumColorChannels; ++i) {
         result.values[i] = a->values[i] + (b->values[i] - a->values[i]) * t;
@@ -80,12 +103,12 @@ typedef struct VisageCanvas_t VisageCanvas;
 VisageCanvas* VisageCanvas_new();
 void VisageCanvas_destroy(VisageCanvas* canvas);
 
-void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int width, int height);
+void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int32_t width, int32_t height);
 
-void VisageCanvas_setDimensions(VisageCanvas* canvas, int width, int height);
+void VisageCanvas_setDimensions(VisageCanvas* canvas, int32_t width, int32_t height);
 void VisageCanvas_setDpiScale(VisageCanvas* canvas, float scale);
 void VisageCanvas_clearDrawnShapes(VisageCanvas* canvas);
-void VisageCanvas_submit(VisageCanvas* canvas, int submit_pass);
+void VisageCanvas_submit(VisageCanvas* canvas, int32_t submit_pass);
 
 void VisageCanvas_setColor(VisageCanvas* canvas, VisageColor color);
 void VisageCanvas_fill(VisageCanvas* canvas, float x, float y, float width, float height);

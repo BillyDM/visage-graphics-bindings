@@ -35,27 +35,27 @@ extern "C"
 
     // -- Color ----------------------------------------------------------------------------------------
 
-    VisageColor VisageColor_fromAHSV(float alpha, float hue, float saturation, float value) {
-        return color_from_cpp(visage::Color::fromAHSV(alpha, hue, saturation, value));
+    void VisageColor_fromAHSV_inner(float alpha, float hue, float saturation, float value, VisageColor* returnValue) {
+        *returnValue = color_from_cpp(visage::Color::fromAHSV(alpha, hue, saturation, value));
     }
-    VisageColor VisageColor_fromABGR(unsigned int abgr) {
-        return color_from_cpp(visage::Color::fromABGR(abgr));
+    void VisageColor_fromABGR_inner(uint32_t abgr, VisageColor* returnValue) {
+        *returnValue = color_from_cpp(visage::Color::fromABGR(static_cast<unsigned int>(abgr)));
     }
-    VisageColor VisageColor_fromARGB(unsigned int argb) {
-        return color_from_cpp(visage::Color::fromARGB(argb));
+    void VisageColor_fromARGB_inner(uint32_t argb, VisageColor* returnValue) {
+        *returnValue = color_from_cpp(visage::Color::fromARGB(static_cast<unsigned int>(argb)));
     }
-    VisageColor VisageColor_fromHexString(const char* str) {
+    void VisageColor_fromHexString_inner(const char* str, VisageColor* returnValue) {
         std::string cpp_str = std::string(str);
-        return color_from_cpp(visage::Color::fromHexString(cpp_str));
+        *returnValue = color_from_cpp(visage::Color::fromHexString(cpp_str));
     }
-    unsigned int VisageColor_toABGR(const VisageColor* color) {
-        return color_to_cpp(*color).toABGR();
+    uint32_t VisageColor_toABGR(const VisageColor* color) {
+        return static_cast<uint32_t>(color_to_cpp(*color).toABGR());
     }
-    unsigned int VisageColor_toARGB(const VisageColor* color) {
-        return color_to_cpp(*color).toARGB();
+    uint32_t VisageColor_toARGB(const VisageColor* color) {
+        return static_cast<uint32_t>(color_to_cpp(*color).toARGB());
     }
-    unsigned int VisageColor_toRGB(const VisageColor* color) {
-        return color_to_cpp(*color).toRGB();
+    uint32_t VisageColor_toRGB(const VisageColor* color) {
+        return static_cast<uint32_t>(color_to_cpp(*color).toRGB());
     }
     float VisageColor_saturation(const VisageColor* color) {
         return color_to_cpp(*color).saturation();
@@ -74,11 +74,11 @@ extern "C"
         delete reinterpret_cast<visage::Canvas*>(canvas);
     }
     
-    void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int width, int height) {
-        reinterpret_cast<visage::Canvas*>(canvas)->pairToWindow(window_handle, width, height);
+    void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int32_t width, int32_t height) {
+        reinterpret_cast<visage::Canvas*>(canvas)->pairToWindow(window_handle, static_cast<int>(width), static_cast<int>(height));
     }
-    void VisageCanvas_setDimensions(VisageCanvas* canvas, int width, int height) {
-        reinterpret_cast<visage::Canvas*>(canvas)->setDimensions(width, height);
+    void VisageCanvas_setDimensions(VisageCanvas* canvas, int32_t width, int32_t height) {
+        reinterpret_cast<visage::Canvas*>(canvas)->setDimensions(static_cast<int>(width), static_cast<int>(height));
     }
     void VisageCanvas_setDpiScale(VisageCanvas* canvas, float scale) {
         reinterpret_cast<visage::Canvas*>(canvas)->setDpiScale(scale);
@@ -86,8 +86,8 @@ extern "C"
     void VisageCanvas_clearDrawnShapes(VisageCanvas* canvas) {
         reinterpret_cast<visage::Canvas*>(canvas)->clearDrawnShapes();
     }
-    void VisageCanvas_submit(VisageCanvas* canvas, int submit_pass) {
-        reinterpret_cast<visage::Canvas*>(canvas)->submit(submit_pass);
+    void VisageCanvas_submit(VisageCanvas* canvas, int32_t submit_pass) {
+        reinterpret_cast<visage::Canvas*>(canvas)->submit(static_cast<int>(submit_pass));
     }
 
     void VisageCanvas_setColor(VisageCanvas* canvas, VisageColor color) {

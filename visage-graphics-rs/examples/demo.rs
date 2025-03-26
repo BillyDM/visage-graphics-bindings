@@ -154,6 +154,7 @@ impl ApplicationHandler for App {
 
                     visage_graphics_sys::VisageBrush_delete(brush);
                     visage_graphics_sys::VisageGradient_delete(gradient);
+
                     visage_graphics_sys::VisageCanvas_circle(
                         state.canvas,
                         x,
@@ -161,10 +162,68 @@ impl ApplicationHandler for App {
                         2.0 * circle_radius,
                     );
 
+                    visage_graphics_sys::VisageCanvas_setColor(
+                        state.canvas,
+                        visage_graphics_sys::VisageColor_fromARGB(0xff00aaaa),
+                    );
+
+                    visage_graphics_sys::VisageCanvas_arc(
+                        state.canvas,
+                        10.0,
+                        10.0,
+                        50.0,
+                        3.0,
+                        0.0,
+                        2.0,
+                        true,
+                    );
+
+                    let line = visage_graphics_sys::VisageLine_new(20);
+                    let x_values = std::slice::from_raw_parts_mut(
+                        visage_graphics_sys::VisageLine_xValues(line),
+                        20,
+                    );
+                    let y_values = std::slice::from_raw_parts_mut(
+                        visage_graphics_sys::VisageLine_yValues(line),
+                        20,
+                    );
+                    for i in 0..20 {
+                        let norm = i as f32 / 20.0;
+                        x_values[i] = norm * 190.0 + 5.0;
+                        y_values[i] = norm * norm * 190.0 + 5.0;
+                    }
+
+                    visage_graphics_sys::VisageCanvas_line(
+                        state.canvas,
+                        line,
+                        300.0,
+                        20.0,
+                        200.0,
+                        100.0,
+                        3.0,
+                    );
+
+                    visage_graphics_sys::VisageCanvas_setColor(
+                        state.canvas,
+                        visage_graphics_sys::VisageColor_fromARGB(0x5500aaaa),
+                    );
+
+                    visage_graphics_sys::VisageCanvas_lineFill(
+                        state.canvas,
+                        line,
+                        300.0,
+                        20.0,
+                        200.0,
+                        100.0,
+                        200.0,
+                    );
+
                     // Notify that you're about to draw.
                     state.window.pre_present_notify();
 
                     visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
+
+                    visage_graphics_sys::VisageLine_delete(line);
                 }
 
                 // For contiguous redraw loop you can request a redraw from here.

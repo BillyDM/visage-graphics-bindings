@@ -7,7 +7,7 @@ extern "C" {
 #else
 #include <stdbool.h>
 #include <stdint.h>
-#define char32_t uint32_t
+#define char32_t uint_least32_t
 #endif
 
 #define VISAGE_MAX(a,b) ((a) > (b) ? (a) : (b))

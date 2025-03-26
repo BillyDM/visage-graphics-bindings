@@ -193,12 +193,16 @@ float VisageFont_lowerDipHeight(const VisageFont* font);
 float VisageFont_size(const VisageFont* font);
 const char* VisageFont_fontData(const VisageFont* font, int32_t* data_size);
 
+VisageFont* VisageFont_LatoRegular(float size, float dpi_scale);
+VisageFont* VisageFont_DroidSansMono(float size, float dpi_scale);
+VisageFont* VisageFont_TwemojiMozilla(float size, float dpi_scale);
+
 // -- Text -----------------------------------------------------------------------------------------
 
 struct VisageText_t;
 typedef struct VisageText_t VisageText;
 
-VisageText* VisageText_new();
+VisageText* VisageText_new(const VisageFont* font);
 VisageText* VisageText_copy(const VisageText* text);
 void VisageText_delete(VisageText* text);
 
@@ -223,7 +227,7 @@ int32_t VisageText_getCharacterOverride(const VisageText* text);
 
 // -- Canvas ---------------------------------------------------------------------------------------
 
-enum Direction {
+enum VisageDirection {
   Left = 0,
   Up,
   Right,

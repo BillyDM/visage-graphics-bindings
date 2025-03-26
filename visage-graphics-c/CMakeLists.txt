@@ -21,7 +21,6 @@ message(STATUS "Downloading Visage repository")
 FetchContent_Declare(
   visage
   GIT_REPOSITORY https://github.com/VitalAudio/visage.git
-  GIT_SHALLOW TRUE
   GIT_TAG 466aedf2aefab1191b66d35119791c0c928d5fee
   EXCLUDE_FROM_ALL
 )
@@ -52,7 +51,14 @@ endfunction()
 
 add_library(VisageGraphicsC STATIC visage_graphics_c.cpp)
 
-target_include_directories(VisageGraphicsC SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${VISAGE_INCLUDE_PATH} ${VISAGE_INCLUDE})
+target_include_directories(VisageGraphicsC SYSTEM
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
+    ${VISAGE_INCLUDE_PATH}
+    ${VISAGE_INCLUDE}
+    ${visage_SOURCE_DIR}/visage_file_embed
+    ${visage_BINARY_DIR}/visage_graphics/VisageEmbeddedFonts_generated
+  )
 target_link_libraries(VisageGraphicsC PRIVATE
   VisageGraphics
   VisageUtils

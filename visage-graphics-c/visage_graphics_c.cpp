@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include "visage/graphics.h"
+#include <visage/graphics.h>
 #include <visage_graphics/canvas.h>
 #include <visage_graphics/font.h>
 #include <visage_graphics/gradient.h>
@@ -11,6 +11,7 @@
 #include <visage_utils/defines.h>
 #include <visage_utils/space.h>
 #include <visage_utils/string_utils.h>
+#include <embedded/fonts.h>
 
 #include "visage_graphics_c.h"
 
@@ -323,10 +324,24 @@ extern "C"
         return font_cpp->fontData();
     }
 
+    VisageFont* VisageFont_LatoRegular(float size, float dpi_scale) {
+        auto font = new visage::Font(size, visage::fonts::Lato_Regular_ttf);
+        return reinterpret_cast<VisageFont*>(font);
+    }
+    VisageFont* VisageFont_DroidSansMono(float size, float dpi_scale) {
+        auto font = new visage::Font(size, visage::fonts::DroidSansMono_ttf);
+        return reinterpret_cast<VisageFont*>(font);
+    }
+    VisageFont* VisageFont_TwemojiMozilla(float size, float dpi_scale) {
+        auto font = new visage::Font(size, visage::fonts::Twemoji_Mozilla_ttf);
+        return reinterpret_cast<VisageFont*>(font);
+    }
+
     // -- Text -----------------------------------------------------------------------------------------
 
-    VisageText* VisageText_new() {
+    VisageText* VisageText_new(const VisageFont* font) {
         auto text = new visage::Text;
+        text->setFont(*reinterpret_cast<const visage::Font*>(font));
         return reinterpret_cast<VisageText*>(text);
     }
     VisageText* VisageText_copy(const VisageText* text) {
@@ -338,7 +353,7 @@ extern "C"
     }
 
     void VisageText_setText(VisageText* text, const char* s) {
-        visage::String cpp_str = visage::String(text);
+        visage::String cpp_str = visage::String(s);
         reinterpret_cast<visage::Text*>(text)->setText(cpp_str);
     }
     void VisageText_setTextWithLength(VisageText* text, const char* s, int32_t length) {
@@ -346,7 +361,7 @@ extern "C"
         reinterpret_cast<visage::Text*>(text)->setText(cpp_str);
     }
     void VisageText_setTextU32(VisageText* text, const char32_t* s) {
-        visage::String cpp_str = visage::String(text);
+        visage::String cpp_str = visage::String(s);
         reinterpret_cast<visage::Text*>(text)->setText(cpp_str);
     }
     void VisageText_setTextU32WithLength(VisageText* text, const char32_t* s, int32_t length) {
@@ -355,7 +370,7 @@ extern "C"
     }
     const char32_t* VisageText_getTextU32(const VisageText* text, int32_t* length) {
         auto text_cpp = reinterpret_cast<const visage::Text*>(text);
-        auto s = &text_cpp->text();
+        auto s = &(text_cpp->text());
         *length = s->length();
         return s->c_str();
     }
@@ -397,7 +412,7 @@ extern "C"
     void VisageCanvas_destroy(VisageCanvas* canvas) {
         delete reinterpret_cast<visage::Canvas*>(canvas);
     }
-    
+
     void VisageCanvas_pairToWindow(VisageCanvas* canvas, void* window_handle, int32_t width, int32_t height) {
         reinterpret_cast<visage::Canvas*>(canvas)->pairToWindow(window_handle, static_cast<int>(width), static_cast<int>(height));
     }

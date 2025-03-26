@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::os::raw::c_void;
 
+use visage_graphics_sys::VisageText_new;
 use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
 use winit::event::WindowEvent;
@@ -20,6 +21,7 @@ struct App {
 struct WindowState {
     window: Window,
     canvas: *mut visage_graphics_sys::VisageCanvas,
+    font: *mut visage_graphics_sys::VisageFont,
 }
 
 impl Drop for App {
@@ -27,6 +29,7 @@ impl Drop for App {
         if let Some(state) = &self.state {
             unsafe {
                 visage_graphics_sys::VisageCanvas_destroy(state.canvas);
+                visage_graphics_sys::VisageFont_delete(state.font);
             }
         }
     }
@@ -47,7 +50,7 @@ impl ApplicationHandler for App {
             let raw_display = window.display_handle().unwrap();
             let raw_window = window.window_handle().unwrap();
 
-            let canvas = unsafe {
+            let (canvas, font) = unsafe {
                 let raw_display_ptr: *mut c_void = match raw_display.as_raw() {
                     RawDisplayHandle::Xlib(handle) => handle.display.unwrap().as_ptr(),
                     _ => todo!(),
@@ -74,12 +77,18 @@ impl ApplicationHandler for App {
 
                 visage_graphics_sys::VisageCanvas_setDpiScale(canvas, dpi_scale);
 
-                canvas
+                let font = visage_graphics_sys::VisageFont_LatoRegular(18.0, 1.0);
+
+                (canvas, font)
             };
 
             window.request_redraw();
 
-            self.state = Some(WindowState { window, canvas });
+            self.state = Some(WindowState {
+                window,
+                canvas,
+                font,
+            });
         }
     }
 
@@ -218,12 +227,30 @@ impl ApplicationHandler for App {
                         200.0,
                     );
 
+                    visage_graphics_sys::VisageCanvas_setColor(
+                        state.canvas,
+                        visage_graphics_sys::VisageColor_fromARGB(0xffffffff),
+                    );
+
+                    let text = visage_graphics_sys::VisageText_new(state.font);
+                    visage_graphics_sys::VisageText_setText(text, c"Hello World!".as_ptr());
+                    visage_graphics_sys::VisageCanvas_text(
+                        state.canvas,
+                        text,
+                        30.0,
+                        300.5,
+                        100.0,
+                        30.0,
+                        1,
+                    );
+
                     // Notify that you're about to draw.
                     state.window.pre_present_notify();
 
                     visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
 
                     visage_graphics_sys::VisageLine_delete(line);
+                    visage_graphics_sys::VisageText_delete(text);
                 }
 
                 // For contiguous redraw loop you can request a redraw from here.

@@ -1,7 +1,10 @@
 use std::error::Error;
 
+use visage_graphics_rs::brush::Brush;
 use visage_graphics_rs::canvas::Canvas;
+use visage_graphics_rs::color::Color;
 use visage_graphics_rs::font::Font;
+use visage_graphics_rs::gradient::Gradient;
 use visage_graphics_rs::text::{Direction, Justification, Text};
 use widestring::utf32str;
 use winit::application::ApplicationHandler;
@@ -73,8 +76,14 @@ impl ApplicationHandler for App {
                 let x = window_width * 0.5 - circle_radius;
                 let y = window_height * 0.5 - circle_radius;
 
-                state.canvas.set_color(0xff00ffff);
+                let gradient = Gradient::from_colors(&[0xff00ffff.into(), 0xff0000ff.into()]);
+                let mut brush = Brush::new();
+                brush.horizontal(&gradient);
+                state.canvas.set_brush(&brush);
+
                 state.canvas.circle(x, y, 2.0 * circle_radius);
+
+                state.canvas.set_color(Color::WHITE);
 
                 let mut text = Text::new(&state.font);
                 text.set_text(utf32str!("Hello World!"));

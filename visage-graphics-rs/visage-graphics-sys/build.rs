@@ -2,6 +2,10 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
+    println!("cargo::rerun-if-changed=../../visage-graphics-c/CMakeLists.txt");
+    println!("cargo::rerun-if-changed=../../visage-graphics-c/visage_graphics_c.cpp");
+    println!("cargo::rerun-if-changed=../../visage-graphics-c/visage_graphics_c.h");
+
     // Build the static library with CMake.
     let mut config = cmake::Config::new("../../visage-graphics-c");
     config.define("BUILD_SHARED_LIBS", "OFF");

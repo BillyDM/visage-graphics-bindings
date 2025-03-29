@@ -123,7 +123,7 @@ VisageBrush* VisageBrush_new();
 VisageBrush* VisageBrush_copy(const VisageBrush* brush);
 void VisageBrush_delete(VisageBrush* brush);
 
-void VisageBrush_solid(VisageBrush* brush, const VisageColor* color);
+void VisageBrush_solid(VisageBrush* brush, const VisageColor color);
 void VisageBrush_horizontal(VisageBrush* brush, const VisageGradient* gradient);
 void VisageBrush_horizontalFromTwo(VisageBrush* brush, VisageColor left, VisageColor right);
 void VisageBrush_vertical(VisageBrush* brush, const VisageGradient* gradient);
@@ -163,18 +163,6 @@ float* VisageLine_values(VisageLine* line);
 
 // -- Font -----------------------------------------------------------------------------------------
 
-enum VisageJustification {
-  kVisageJustificationCenter = 0,
-  kVisageJustificationLeft = 0x1,
-  kVisageJustificationRight = 0x2,
-  kVisageJustificationTop = 0x10,
-  kVisageJustificationBottom = 0x20,
-  kVisageJustificationTopLeft = kVisageJustificationTop | kVisageJustificationLeft,
-  kVisageJustificationBottomLeft = kVisageJustificationBottom | kVisageJustificationLeft,
-  kVisageJustificationTopRight = kVisageJustificationTop | kVisageJustificationRight,
-  kVisageJustificationBottomRight = kVisageJustificationBottom | kVisageJustificationRight,
-};
-
 struct VisageFont_t;
 typedef struct VisageFont_t VisageFont;
 
@@ -199,6 +187,18 @@ VisageFont* VisageFont_TwemojiMozilla(float size, float dpi_scale);
 
 // -- Text -----------------------------------------------------------------------------------------
 
+enum VisageJustification {
+  kVisageJustificationCenter = 0,
+  kVisageJustificationLeft = 0x1,
+  kVisageJustificationRight = 0x2,
+  kVisageJustificationTop = 0x10,
+  kVisageJustificationBottom = 0x20,
+  kVisageJustificationTopLeft = kVisageJustificationTop | kVisageJustificationLeft,
+  kVisageJustificationBottomLeft = kVisageJustificationBottom | kVisageJustificationLeft,
+  kVisageJustificationTopRight = kVisageJustificationTop | kVisageJustificationRight,
+  kVisageJustificationBottomRight = kVisageJustificationBottom | kVisageJustificationRight,
+};
+
 struct VisageText_t;
 typedef struct VisageText_t VisageText;
 
@@ -216,8 +216,8 @@ const char32_t* VisageText_getTextU32(const VisageText* text, int32_t* string_le
 void VisageText_setFont(VisageText* text, const VisageFont* font);
 const VisageFont* VisageText_getFont(const VisageText* text);
 
-void VisageText_setJustification(VisageText* text, int32_t justification);
-int32_t VisageText_getJustification(const VisageText* text);
+void VisageText_setJustification(VisageText* text, uint32_t justification);
+uint32_t VisageText_getJustification(const VisageText* text);
 
 void VisageText_setMultiLine(VisageText* text, bool multi_line);
 bool VisageText_getMultiLine(const VisageText* text);

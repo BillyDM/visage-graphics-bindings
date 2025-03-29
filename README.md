@@ -1,7 +1,7 @@
 # Visage-Graphics Language Bindings
 Experimental language bindings to the hardware-accelerated [bgfx](https://github.com/bkaradzic/bgfx)-based 2D graphics engine from the [Visage](https://github.com/VitalAudio/visage) GUI library. Note this *ONLY* binds to the `visage_graphics` module inside Visage and not to the entire Visage library.
 
-*This repository is currently a work in progress and is very experimental. There is no gaurantee that these bindings will ever be finished.*
+*This repository is currently a work in progress and is very experimental. There is no guarantee that these bindings will ever be finished.*
 
 Currently this repository provides bindings for C and Rust. Feel free to open a PR with any language bindings you wish to see! (Once the C bindings are complete of course.)
 

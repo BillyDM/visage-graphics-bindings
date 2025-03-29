@@ -1,17 +1,7 @@
-cmake_minimum_required(VERSION 3.17)
-project(visage VERSION 0.1.0)
-
-if (NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif ()
-
 if (APPLE)
   enable_language(OBJC)
   enable_language(OBJCXX)
 endif ()
-
-option(VISAGE_ENABLE_BACKGROUND_GRAPHICS_THREAD "Offloads graphics rendering to a background thread" OFF)
-option(VISAGE_ENABLE_GRAPHICS_DEBUG_LOGGING "Shows graphics debug log in console in debug mode" OFF)
 
 set(VISAGE_BUILD_TESTS OFF)
 set(VISAGE_AMALGAMATED_BUILD ON)
@@ -21,7 +11,7 @@ message(STATUS "Downloading Visage repository")
 FetchContent_Declare(
   visage
   GIT_REPOSITORY https://github.com/VitalAudio/visage.git
-  GIT_TAG 466aedf2aefab1191b66d35119791c0c928d5fee
+  GIT_TAG 39e46bc5201431faaa9aa40307b560d2076a56b9
   EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(visage)

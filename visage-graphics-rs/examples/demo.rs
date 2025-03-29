@@ -1,17 +1,14 @@
 use std::error::Error;
-use std::os::raw::c_void;
 
-use visage_graphics_sys::VisageText_new;
+use visage_graphics_rs::canvas::Canvas;
+use visage_graphics_rs::font::Font;
+use visage_graphics_rs::text::{Direction, Justification, Text};
+use widestring::utf32str;
 use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
 use winit::event::WindowEvent;
 use winit::event_loop::{ActiveEventLoop, EventLoop};
-use winit::raw_window_handle::{
-    HasDisplayHandle, HasWindowHandle, RawDisplayHandle, RawWindowHandle,
-};
 use winit::window::{Window, WindowAttributes, WindowId};
-
-use visage_graphics_rs::visage_graphics_sys;
 
 #[derive(Default)]
 struct App {
@@ -19,20 +16,9 @@ struct App {
 }
 
 struct WindowState {
+    canvas: Canvas,
+    font: Font,
     window: Window,
-    canvas: *mut visage_graphics_sys::VisageCanvas,
-    font: *mut visage_graphics_sys::VisageFont,
-}
-
-impl Drop for App {
-    fn drop(&mut self) {
-        if let Some(state) = &self.state {
-            unsafe {
-                visage_graphics_sys::VisageCanvas_destroy(state.canvas);
-                visage_graphics_sys::VisageFont_delete(state.font);
-            }
-        }
-    }
 }
 
 impl ApplicationHandler for App {
@@ -47,47 +33,19 @@ impl ApplicationHandler for App {
             let window_size = window.inner_size();
             let dpi_scale = window.scale_factor() as f32;
 
-            let raw_display = window.display_handle().unwrap();
-            let raw_window = window.window_handle().unwrap();
-
-            let (canvas, font) = unsafe {
-                let raw_display_ptr: *mut c_void = match raw_display.as_raw() {
-                    RawDisplayHandle::Xlib(handle) => handle.display.unwrap().as_ptr(),
-                    _ => todo!(),
-                };
-
-                let raw_window_ptr: *mut c_void = match raw_window.as_raw() {
-                    RawWindowHandle::Xlib(handle) => handle.window as *mut c_void,
-                    _ => todo!(),
-                };
-
-                visage_graphics_sys::VisageRenderer_checkInitialization(
-                    raw_window_ptr,
-                    raw_display_ptr,
-                );
-
-                let canvas = visage_graphics_sys::VisageCanvas_new();
-
-                visage_graphics_sys::VisageCanvas_pairToWindow(
-                    canvas,
-                    raw_window_ptr,
-                    window_size.width as i32,
-                    window_size.height as i32,
-                );
-
-                visage_graphics_sys::VisageCanvas_setDpiScale(canvas, dpi_scale);
-
-                let font = visage_graphics_sys::VisageFont_LatoRegular(18.0, 1.0);
-
-                (canvas, font)
-            };
+            let mut canvas = Canvas::new();
+            unsafe {
+                canvas.pair_to_window(&window, window_size.width, window_size.height, dpi_scale);
+            }
 
             window.request_redraw();
 
+            let font = Font::new_lato_regular(16.0, 1.0);
+
             self.state = Some(WindowState {
                 window,
-                canvas,
                 font,
+                canvas,
             });
         }
     }
@@ -98,7 +56,7 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             WindowEvent::RedrawRequested => {
-                let Some(state) = &self.state else {
+                let Some(state) = &mut self.state else {
                     return;
                 };
 
@@ -106,168 +64,41 @@ impl ApplicationHandler for App {
                 let window_width = window_size.width as f32;
                 let window_height = window_size.height as f32;
 
-                unsafe {
-                    visage_graphics_sys::VisageCanvas_clearDrawnShapes(state.canvas);
+                state.canvas.clear_drawn_shapes();
 
-                    visage_graphics_sys::VisageCanvas_setColor(
-                        state.canvas,
-                        visage_graphics_sys::VisageColor_fromARGB(0xff000066),
-                    );
-                    visage_graphics_sys::VisageCanvas_fill(
-                        state.canvas,
-                        0.0,
-                        0.0,
-                        window_width,
-                        window_height,
-                    );
+                state.canvas.set_color(0xff000066);
+                state.canvas.fill(0.0, 0.0, window_width, window_height);
 
-                    let circle_radius = window_height * 0.1;
-                    let x = window_width * 0.5 - circle_radius;
-                    let y = window_height * 0.5 - circle_radius;
+                let circle_radius = window_height * 0.1;
+                let x = window_width * 0.5 - circle_radius;
+                let y = window_height * 0.5 - circle_radius;
 
-                    let gradient = visage_graphics_sys::VisageGradient_new();
-                    visage_graphics_sys::VisageGradient_setResolution(gradient, 3);
-                    visage_graphics_sys::VisageGradient_setColor(
-                        gradient,
-                        0,
-                        visage_graphics_sys::VisageColor_fromARGB(0xff0000ff),
-                    );
-                    visage_graphics_sys::VisageGradient_setColor(
-                        gradient,
-                        1,
-                        visage_graphics_sys::VisageColor_fromARGB(0xff00ff00),
-                    );
-                    visage_graphics_sys::VisageGradient_setColor(
-                        gradient,
-                        2,
-                        visage_graphics_sys::VisageColor_fromARGB(0xffff0000),
-                    );
+                state.canvas.set_color(0xff00ffff);
+                state.canvas.circle(x, y, 2.0 * circle_radius);
 
-                    let brush = visage_graphics_sys::VisageBrush_new();
-                    visage_graphics_sys::VisageBrush_linear(
-                        brush,
-                        gradient,
-                        x,
-                        y,
-                        x + 2.0 * circle_radius,
-                        y + 2.0 * circle_radius,
-                    );
-                    /*
-                    visage_graphics_sys::VisageBrush_horizontalFromTwo(
-                        brush,
-                        visage_graphics_sys::VisageColor_fromARGB(0xff00aaaa),
-                        visage_graphics_sys::VisageColor_fromARGB(0xffffffff),
-                    );
-                    */
-                    visage_graphics_sys::VisageCanvas_setBrush(state.canvas, brush);
+                let mut text = Text::new(&state.font);
+                text.set_text(utf32str!("Hello World!"));
+                text.set_justification(Justification::LEFT);
+                state
+                    .canvas
+                    .text(&text, 20.0, 20.0, 100.0, 30.0, Direction::default());
 
-                    visage_graphics_sys::VisageBrush_delete(brush);
-                    visage_graphics_sys::VisageGradient_delete(gradient);
+                // Notify that you're about to draw.
+                state.window.pre_present_notify();
 
-                    visage_graphics_sys::VisageCanvas_circle(
-                        state.canvas,
-                        x,
-                        y,
-                        2.0 * circle_radius,
-                    );
-
-                    visage_graphics_sys::VisageCanvas_setColor(
-                        state.canvas,
-                        visage_graphics_sys::VisageColor_fromARGB(0xff00aaaa),
-                    );
-
-                    visage_graphics_sys::VisageCanvas_arc(
-                        state.canvas,
-                        10.0,
-                        10.0,
-                        50.0,
-                        3.0,
-                        0.0,
-                        2.0,
-                        true,
-                    );
-
-                    let line = visage_graphics_sys::VisageLine_new(20);
-                    let x_values = std::slice::from_raw_parts_mut(
-                        visage_graphics_sys::VisageLine_xValues(line),
-                        20,
-                    );
-                    let y_values = std::slice::from_raw_parts_mut(
-                        visage_graphics_sys::VisageLine_yValues(line),
-                        20,
-                    );
-                    for i in 0..20 {
-                        let norm = i as f32 / 20.0;
-                        x_values[i] = norm * 190.0 + 5.0;
-                        y_values[i] = norm * norm * 190.0 + 5.0;
-                    }
-
-                    visage_graphics_sys::VisageCanvas_line(
-                        state.canvas,
-                        line,
-                        300.0,
-                        20.0,
-                        200.0,
-                        100.0,
-                        3.0,
-                    );
-
-                    visage_graphics_sys::VisageCanvas_setColor(
-                        state.canvas,
-                        visage_graphics_sys::VisageColor_fromARGB(0x5500aaaa),
-                    );
-
-                    visage_graphics_sys::VisageCanvas_lineFill(
-                        state.canvas,
-                        line,
-                        300.0,
-                        20.0,
-                        200.0,
-                        100.0,
-                        200.0,
-                    );
-
-                    visage_graphics_sys::VisageCanvas_setColor(
-                        state.canvas,
-                        visage_graphics_sys::VisageColor_fromARGB(0xffffffff),
-                    );
-
-                    let text = visage_graphics_sys::VisageText_new(state.font);
-                    visage_graphics_sys::VisageText_setText(text, c"Hello World!".as_ptr());
-                    visage_graphics_sys::VisageCanvas_text(
-                        state.canvas,
-                        text,
-                        30.0,
-                        300.5,
-                        100.0,
-                        30.0,
-                        1,
-                    );
-
-                    // Notify that you're about to draw.
-                    state.window.pre_present_notify();
-
-                    visage_graphics_sys::VisageCanvas_submit(state.canvas, 0);
-
-                    visage_graphics_sys::VisageLine_delete(line);
-                    visage_graphics_sys::VisageText_delete(text);
-                }
+                state.canvas.submit(0);
 
                 // For contiguous redraw loop you can request a redraw from here.
                 //state.window.request_redraw();
             }
             WindowEvent::Resized(new_physical_size) => {
-                let Some(state) = &self.state else {
+                let Some(state) = &mut self.state else {
                     return;
                 };
 
-                unsafe {
-                    visage_graphics_sys::VisageCanvas_setDimensions(
-                        state.canvas,
-                        new_physical_size.width as i32,
-                        new_physical_size.height as i32,
-                    );
-                }
+                state
+                    .canvas
+                    .set_dimensions(new_physical_size.width, new_physical_size.height);
 
                 state.window.request_redraw();
             }
@@ -275,16 +106,12 @@ impl ApplicationHandler for App {
                 scale_factor,
                 inner_size_writer: _,
             } => {
-                let Some(state) = &self.state else {
+                let Some(state) = &mut self.state else {
                     return;
                 };
 
-                unsafe {
-                    visage_graphics_sys::VisageCanvas_setDpiScale(
-                        state.canvas,
-                        scale_factor as f32,
-                    );
-                }
+                state.canvas.set_dpi_scale(scale_factor as f32);
+                state.font = state.font.with_dpi_scale(scale_factor as f32);
 
                 state.window.request_redraw();
             }

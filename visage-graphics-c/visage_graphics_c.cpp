@@ -160,8 +160,8 @@ extern "C"
         delete reinterpret_cast<visage::Brush*>(brush);
     }
 
-    void VisageBrush_solid(VisageBrush* brush, const VisageColor* color) {
-        *reinterpret_cast<visage::Brush*>(brush) = visage::Brush::solid(color_to_cpp(*color));
+    void VisageBrush_solid(VisageBrush* brush, const VisageColor color) {
+        *reinterpret_cast<visage::Brush*>(brush) = visage::Brush::solid(color_to_cpp(color));
     }
     void VisageBrush_horizontal(VisageBrush* brush, const VisageGradient* gradient) {
         *reinterpret_cast<visage::Brush*>(brush) = visage::Brush::horizontal(*reinterpret_cast<const visage::Gradient*>(gradient));
@@ -382,11 +382,11 @@ extern "C"
         return reinterpret_cast<const VisageFont*>(&(reinterpret_cast<const visage::Text*>(text)->font()));
     }
 
-    void VisageText_setJustification(VisageText* text, int32_t justification) {
+    void VisageText_setJustification(VisageText* text, uint32_t justification) {
         reinterpret_cast<visage::Text*>(text)->setJustification(static_cast<visage::Font::Justification>(justification));
     }
-    int32_t VisageText_getJustification(const VisageText* text) {
-        return static_cast<int32_t>(reinterpret_cast<const visage::Text*>(text)->justification());
+    uint32_t VisageText_getJustification(const VisageText* text) {
+        return static_cast<uint32_t>(reinterpret_cast<const visage::Text*>(text)->justification());
     }
 
     void VisageText_setMultiLine(VisageText* text, bool multi_line) {
@@ -483,7 +483,8 @@ extern "C"
         reinterpret_cast<visage::Canvas*>(canvas)->squircle(x, y, width, power);
     }
     void VisageCanvas_squircleBorder(VisageCanvas* canvas, float x, float y, float width, float power, float thickness) {
-        reinterpret_cast<visage::Canvas*>(canvas)->squircleBorder(x, y, width, power, thickness);
+        // TODO: uncomment this once this method is fixed in Visage
+        //reinterpret_cast<visage::Canvas*>(canvas)->squircleBorder(x, y, width, power, thickness);
     }
     void VisageCanvas_superEllipse(VisageCanvas* canvas, float x, float y, float width, float height, float power) {
         reinterpret_cast<visage::Canvas*>(canvas)->superEllipse(x, y, width, height, power);

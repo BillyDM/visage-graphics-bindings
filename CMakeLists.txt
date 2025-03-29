@@ -1,22 +1,17 @@
 cmake_minimum_required(VERSION 3.17)
-project(VisageC VERSION 0.1.1)
+project(VisageGraphicsC VERSION 0.1.1)
 
 if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif ()
 
-# Enable support for some IDEs like VSCode with Clang
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-option(UniversalBinary "Build universal binary for mac" OFF)
-
-if (UniversalBinary)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "")
-endif ()
-
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+option(VISAGE_GRAPHICS_C_BUILD_TEST_APP "Build the the C Test App example" OFF)
+option(VISAGE_ENABLE_BACKGROUND_GRAPHICS_THREAD "Offloads graphics rendering to a background thread" OFF)
+option(VISAGE_ENABLE_GRAPHICS_DEBUG_LOGGING "Shows graphics debug log in console in debug mode" OFF)
 
 add_subdirectory(visage-graphics-c)
-add_subdirectory(c_test_app)
+
+if (VISAGE_C_BUILD_TEST_APP)
+    add_subdirectory(c_test_app)
+endif ()
+
